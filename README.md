@@ -34,8 +34,7 @@ Big Data analytics project for MPL Indonesia Season 17 using PostgreSQL, Metabas
 
 ## Dashboard Preview
 
-<img width="1907" height="912" alt="Screenshot 2026-06-04 051441" src="https://github.com/user-attachments/assets/2ca31f16-3b2a-4366-a0b3-bdfda624cb0f" />
-
+<img width="1900" height="1079" alt="image" src="https://github.com/user-attachments/assets/783259c7-af44-4b53-888d-bbd0eebedd80" />
 
 ## Dataset
 
