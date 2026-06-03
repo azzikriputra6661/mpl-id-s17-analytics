@@ -169,4 +169,4 @@ Institut Teknologi Sepuluh Nopember (ITS)
 
 ## Course
 
-Big Data Project
+Big Data & Web Intelligence
