@@ -1,0 +1,83 @@
+version: '3.8'
+
+volumes:
+  db_data:
+  n8n_data:
+  metabase_data:
+
+services:
+  postgres_bd:
+    image: postgis/postgis:15-3.3
+    container_name: bigdata_db_azzikri
+    restart: always
+    environment:
+      # KREDENSIAL HARUS SAMA DENGAN SESI SEBELUMNYA AGAR BISA MEMBUKA VOLUME LAMA
+      - POSTGRES_USER=surabaya_admin
+      - POSTGRES_PASSWORD=rahasia_twin_123
+      - POSTGRES_DB=suarasurabaya_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  n8n_bd:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: bigdata-n8n-azzikri
+    restart: always
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=suarasurabaya_db # Nama DB lama
+      - DB_POSTGRESDB_HOST=postgres_bd          # Nama service baru
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_USER=surabaya_admin       # User lama
+      - DB_POSTGRESDB_PASSWORD=rahasia_twin_123 # Pass lama
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - postgres_bd
+
+  waha_bd:
+    image: devlikeapro/waha
+    container_name: bigdata_waha_azzikri
+    ports:
+      - "3005:3000"
+    environment:
+      - WAHA_DASHBOARD_USERNAME=waha
+      - WAHA_DASHBOARD_PASSWORD=waha_bigdata
+      - WHATSAPP_SWAGGER_USERNAME=admin
+      - WHATSAPP_SWAGGER_PASSWORD=admin_bigdata
+      - WAHA_API_KEY=123456
+      - WAHA_PRINT_QR=true
+      - WHATSAPP_DEFAULT_ENGINE=WEBJS
+      - WHATSAPP_HOOK_URL=http://bigdata-n8n-azzikri:5678/webhook/waha-incoming
+      - WHATSAPP_HOOK_EVENTS=message
+    volumes:
+      - ./waha_sessions:/app/.sessions
+    restart: always
+
+  metabase_bd:
+    image: metabase/metabase:latest
+    container_name: bigdata_metabase_azzikri
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - metabase_data:/metabase-data
+    environment:
+      - MB_DB_FILE=/metabase-data/metabase.db
+    depends_on:
+      - postgres_bd
+
+  scraper_bd:
+    build: ./scraper_api
+    container_name: bigdata_scraper_azzikri
+    restart: always
+    ports:
+      - "8000:8000"
